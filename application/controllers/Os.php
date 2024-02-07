@@ -133,7 +133,7 @@ class Os extends MY_Controller
                 $idOs = $id;
                 $os = $this->os_model->getById($idOs);
                 $emitente = $this->mapos_model->getEmitente();
-              
+
                 $tecnico = $this->usuarios_model->getById($os->usuarios_id);
 
                 // Verificar configuração de notificação
@@ -163,7 +163,8 @@ class Os extends MY_Controller
 
                 $this->session->set_flashdata('success', 'OS adicionada com sucesso, você pode adicionar produtos ou serviços a essa OS nas abas de Produtos e Serviços!');
                 log_info('Adicionou uma OS. ID: ' . $id);
-                redirect(site_url('os/editar/') . $id);
+                $idServicos = (filter_has_var(INPUT_GET, 'idServicos') ? "?idServicos=" . filter_input(INPUT_GET, 'idServicos', FILTER_VALIDATE_INT) : '');
+                redirect(site_url('os/editar/') . $id . ($idServicos));
             } else {
                 $this->data['custom_error'] = '<div class="alert">Ocorreu um erro.</div>';
             }
@@ -295,7 +296,7 @@ class Os extends MY_Controller
 
         $this->load->model('mapos_model');
         $this->data['emitente'] = $this->mapos_model->getEmitente();
-
+        $this->data['id_servicos'] = $this->input->get('idServicos');
         $this->data['view'] = 'os/editarOs';
         return $this->layout();
     }
@@ -347,7 +348,8 @@ class Os extends MY_Controller
         return $this->layout();
     }
 
-    public function validarCPF($cpf) {
+    public function validarCPF($cpf)
+    {
         $cpf = preg_replace('/[^0-9]/', '', $cpf);
         if (strlen($cpf) !== 11 || preg_match('/^(\d)\1+$/', $cpf)) {
             return false;
@@ -371,7 +373,8 @@ class Os extends MY_Controller
         return $dv2 == $cpf[10];
     }
 
-    public function validarCNPJ($cnpj) {
+    public function validarCNPJ($cnpj)
+    {
         $cnpj = preg_replace('/[^0-9]/', '', $cnpj);
         if (strlen($cnpj) !== 14 || preg_match('/^(\d)\1+$/', $cnpj)) {
             return false;
@@ -395,14 +398,13 @@ class Os extends MY_Controller
         return $dv2 == $cnpj[13];
     }
 
-    public function formatarChave($chave) {
+    public function formatarChave($chave)
+    {
         if ($this->validarCPF($chave)) {
             return substr($chave, 0, 3) . '.' . substr($chave, 3, 3) . '.' . substr($chave, 6, 3) . '-' . substr($chave, 9);
-        }
-        elseif ($this->validarCNPJ($chave)) {
+        } elseif ($this->validarCNPJ($chave)) {
             return substr($chave, 0, 2) . '.' . substr($chave, 2, 3) . '.' . substr($chave, 5, 3) . '/' . substr($chave, 8, 4) . '-' . substr($chave, 12);
-        }
-        elseif (strlen($chave) === 11) {
+        } elseif (strlen($chave) === 11) {
             return '(' . substr($chave, 0, 2) . ') ' . substr($chave, 2, 5) . '-' . substr($chave, 7);
         }
         return $chave;
@@ -803,6 +805,51 @@ class Os extends MY_Controller
         }
     }
 
+    public function adicionarServicoById()
+    {
+        $this->load->library('form_validation');
+
+        if ($this->form_validation->run('adicionar_servico_os_by_id') === false) {
+            $errors = validation_errors();
+
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(json_encode($errors));
+        }
+
+        $this->load->model('servicos_model');
+        $servico = $this->servicos_model->getById($this->input->post('idServico'));
+
+        $data = [
+            'servicos_id' => $this->input->post('idServico'),
+            'quantidade' => 1,
+            'preco' => $servico->preco,
+            'os_id' => $this->input->post('idOsServico'),
+            'subTotal' => $servico->preco,
+        ];
+
+        if ($this->os_model->add('servicos_os', $data) == true) {
+            log_info('Adicionou serviço via ajax a uma OS. ID (OS): ' . $this->input->post('idOsServico'));
+
+            $this->db->set('desconto', 0.00);
+            $this->db->set('valor_desconto', 0.00);
+            $this->db->set('tipo_desconto', null);
+            $this->db->where('idOs', $this->input->post('idOsServico'));
+            $this->db->update('os');
+
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(200)
+                ->set_output(json_encode(['result' => true, 'descricao' => sprintf("%s, %s", $servico->codigo, $servico->descricao)]));
+        } else {
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_status_header(500)
+                ->set_output(json_encode(['result' => false]));
+        }
+    }
+
     public function excluirServico()
     {
         $ID = $this->input->post('idServico');
@@ -865,13 +912,13 @@ class Os extends MY_Controller
                 $error['upload'][] = $this->upload->display_errors();
             } else {
                 $upload_data = $this->upload->data();
-        
+
                 // Gera um nome de arquivo aleatório mantendo a extensão original
                 $new_file_name = uniqid() . '.' . pathinfo($upload_data['file_name'], PATHINFO_EXTENSION);
                 $new_file_path = $upload_data['file_path'] . $new_file_name;
-        
+
                 rename($upload_data['full_path'], $new_file_path);
-        
+
                 if ($upload_data['is_image'] == 1) {
                     $resize_conf = [
                         'source_image' => $new_file_path,
@@ -879,9 +926,9 @@ class Os extends MY_Controller
                         'width' => 200,
                         'height' => 125,
                     ];
-        
+
                     $this->image_lib->initialize($resize_conf);
-        
+
                     if (!$this->image_lib->resize()) {
                         $error['resize'][] = $this->image_lib->display_errors();
                     } else {
@@ -894,9 +941,9 @@ class Os extends MY_Controller
                     }
                 } else {
                     $success[] = $upload_data;
-        
+
                     $this->load->model('Os_model');
-        
+
                     $result = $this->Os_model->anexar($this->input->post('idOsServico'), $new_file_name, base_url('assets' . DIRECTORY_SEPARATOR . 'anexos' . DIRECTORY_SEPARATOR . date('m-Y') . DIRECTORY_SEPARATOR . 'OS-' . $this->input->post('idOsServico')), '', $directory);
                     if (!$result) {
                         $error['db'][] = 'Erro ao inserir no banco de dados.';
@@ -904,7 +951,7 @@ class Os extends MY_Controller
                 }
             }
         }
-        
+
         if (count($error) > 0) {
             echo json_encode(['result' => false, 'mensagem' => 'Ocorreu um erro ao processar os arquivos.', 'errors' => $error]);
         } else {

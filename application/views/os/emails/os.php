@@ -261,7 +261,11 @@ $totalProdutos = 0; ?>
                     $subtotal = $preco * ($s->quantidade ?: 1);
                     $totalServico = $totalServico + $subtotal;
                     echo '<tr class="item">';
-                    echo '<td>' . $s->nome . '</td>';
+                    if ($configuration['codigo_servico'] == '1' && !empty($s->codigo)) {
+                        echo '<td>' . $s->codigo . ' - ' . $s->nome . '</td>';
+                    } else {
+                        echo '<td>' . $s->nome . '</td>';
+                    }
                     echo '<td>' . ($s->quantidade ?: 1) . '</td>';
                     echo '<td>' . $preco . '</td>';
                     echo '<td>R$ ' . number_format($subtotal, 2, ',', '.') . '</td>';

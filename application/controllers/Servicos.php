@@ -52,6 +52,8 @@ class Servicos extends MY_Controller
         }
 
         $this->load->library('form_validation');
+        $this->load->library('MY_CodigoGerador', $this->data['configuration']);
+
         $this->data['custom_error'] = '';
 
         if ($this->form_validation->run('servicos') == false) {
@@ -61,6 +63,7 @@ class Servicos extends MY_Controller
             $preco = str_replace(",", "", $preco);
 
             $data = [
+                'codigo' => set_value('codigo'),
                 'nome' => set_value('nome'),
                 'descricao' => set_value('descricao'),
                 'preco' => $preco,
@@ -68,6 +71,7 @@ class Servicos extends MY_Controller
 
             if ($this->servicos_model->add('servicos', $data) == true) {
                 $this->session->set_flashdata('success', 'Serviço adicionado com sucesso!');
+                $this->my_codigogerador->useCodigo($data['codigo']);
                 log_info('Adicionou um serviço');
                 redirect(site_url('servicos/adicionar/'));
             } else {
@@ -75,6 +79,7 @@ class Servicos extends MY_Controller
             }
         }
         $this->data['view'] = 'servicos/adicionarServico';
+        $this->data['codigo_servico'] = $this->my_codigogerador->getCodigo();
         return $this->layout();
     }
 

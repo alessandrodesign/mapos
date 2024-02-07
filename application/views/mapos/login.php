@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="<?= base_url() ?>assets/css/bootstrap-responsive.min.css" />
   <link rel="stylesheet" href="<?= base_url() ?>assets/css/matrix-login.css" />
   <link href="<?= base_url(); ?>assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
-  <link rel="shortcut icon" type="image/png" href="<?= base_url(); ?>assets/img/favicon.png" />
+  <link rel="shortcut icon" type="image/png" href="<?= base_url(); ?>assets/img/<?= $configuration['logo_favicon'] ?? "favicon.png" ?>" />
   <script src="<?= base_url() ?>assets/js/jquery-1.12.4.min.js"></script>
 </head>
 
@@ -56,10 +56,10 @@
           <div class="content">
             <div id="newlog">
               <div class="icon2">
-                <img src="<?php echo base_url() ?>assets/img/logo-two.png">
+                <img src="<?php echo base_url() ?>assets/img/<?= $configuration['logo_icone'] ?? "logo-two.png" ?>">
               </div>
               <div class="title01">
-                <?= '<img src="' . base_url() . 'assets/img/logo-mapos-branco.png">'; ?>
+                <?= '<img src="' . base_url() . 'assets/img/'.($configuration['logo_white'] ?? "logo-mapos-branco.png").'">'; ?>
               </div>
             </div>
             <div id="mcell">Versão: <?= $this->config->item('app_version'); ?></div>
@@ -74,8 +74,8 @@
               </div>
               <div class="center"><button id="btn-acessar">Acessar</button>
               </div>
-              <div class="links-uteis"><a href="https://github.com/RamonSilva20/mapos">
-                  <p><?= date('Y'); ?> &copy; Ramon Silva</p>
+              <div class="links-uteis"><a href="https://wa.me/5591989932926?text=<?=urlencode("Oi! Gostaria de falar sobre o mapos")?>">
+                  <p><?= date('Y'); ?> &copy; NORTE&lt;dev/&gt;</p>
                 </a>
               </div>
               <a href="#notification" id="call-modal" role="button" class="btn" data-toggle="modal" style="display: none ">notification</a>

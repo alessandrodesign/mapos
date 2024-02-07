@@ -11,6 +11,15 @@
                 <?php echo $custom_error; ?>
                 <form action="<?php echo current_url(); ?>" id="formServico" method="post" class="form-horizontal">
                     <?php echo form_hidden('idServicos', $result->idServicos) ?>
+                    <?php if ($configuration['codigo_servico']=='1'):
+                        ?>
+                        <div class="control-group">
+                            <label for="codigo" class="control-label">Código<span class="required">*</span></label>
+                            <div class="controls">
+                                <input type="text" readonly disabled value="<?= $result->codigo ?? ''; ?>"/>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                     <div class="control-group">
                         <label for="nome" class="control-label">Nome<span class="required">*</span></label>
                         <div class="controls">
