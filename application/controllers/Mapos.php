@@ -1,6 +1,7 @@
 <?php if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
+
 class Mapos extends MY_Controller
 {
     /**
@@ -438,7 +439,17 @@ class Mapos extends MY_Controller
                 'pix_key' => $this->input->post('pix_key'),
                 'os_status_list' => json_encode($this->input->post('os_status_list')),
                 'control_2vias' => $this->input->post('control_2vias'),
+                'codigo_servico' => $this->input->post('codigo_servico'),
+                'codigo_servico_resta' => $this->input->post('codigo_servico_resta'),
+                'codigo_servico_pref' => $this->input->post('codigo_servico_pref'),
+                'codigo_servico_ano' => $this->input->post('codigo_servico_ano'),
+                'codigo_servico_casa' => $this->input->post('codigo_servico_casa'),
             ];
+
+            if ($uploaded = $this->do_upload_config()) {
+                $data = array_merge($data, $uploaded);
+            }
+
             if ($this->mapos_model->saveConfiguracao($data) == true) {
                 $this->session->set_flashdata('success', 'Configurações do sistema atualizadas com sucesso!');
                 redirect(site_url('mapos/configurar'));
@@ -450,6 +461,45 @@ class Mapos extends MY_Controller
         $this->data['view'] = 'mapos/configurar';
 
         return $this->layout();
+    }
+
+    public function do_upload_config()
+    {
+        $this->load->library('upload');
+
+        $image_upload_folder = FCPATH . 'assets/img';
+
+        if (!file_exists($image_upload_folder)) {
+            mkdir($image_upload_folder, DIR_WRITE_MODE, true);
+        }
+
+        $this->upload_config = [
+            'upload_path' => $image_upload_folder,
+            'allowed_types' => 'png|jpg|jpeg|bmp|svg',
+            'max_size' => 2048,
+            'remove_space' => true,
+            'encrypt_name' => true,
+        ];
+
+        $this->upload->initialize($this->upload_config);
+
+        $uploaded = null;
+
+        foreach ($_FILES as $key => $file) {
+            if ($file['error'] === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            if (!$this->upload->do_upload($key)) {
+                $upload_error = $this->upload->display_errors();
+                print_r($upload_error);
+                exit();
+            } else {
+                $file_info = [$this->upload->data()];
+                $uploaded[$key] = $file_info[0]['file_name'];
+            }
+        }
+
+        return $uploaded;
     }
 
     public function atualizarBanco()
@@ -559,7 +609,7 @@ class Mapos extends MY_Controller
                     'observacoes' => '<b>Observações:</b> ' . strip_tags(html_entity_decode($os->observacoes)),
                     'total' => '<b>Valor Total:</b> R$ ' . number_format($os->totalProdutos + $os->totalServicos, 2, ',', '.'),
                     'desconto' => '<b>Desconto: </b>R$ ' . number_format($this->desconto(floatval($os->valorTotal), floatval($os->desconto), strval($os->tipo_desconto)), 2, ',', '.'),
-                    'valorFaturado' => '<b>Valor Faturado:</b> ' . ($os->faturado ? 'R$ '. number_format($os->valorTotal - $this->desconto(floatval($os->valorTotal), floatval($os->desconto), strval($os->tipo_desconto)), 2, ',', '.') : "PENDENTE"),
+                    'valorFaturado' => '<b>Valor Faturado:</b> ' . ($os->faturado ? 'R$ ' . number_format($os->valorTotal - $this->desconto(floatval($os->valorTotal), floatval($os->desconto), strval($os->tipo_desconto)), 2, ',', '.') : "PENDENTE"),
                     'editar' => $this->os_model->isEditable($os->idOs),
                 ]
             ];
@@ -572,10 +622,11 @@ class Mapos extends MY_Controller
     }
 
     private function desconto(
-        float $valorTotal,
-        float $desconto,
+        float  $valorTotal,
+        float  $desconto,
         string $tipoDesconto
-    ) {
+    )
+    {
         return $tipoDesconto === 'porcento'
             ? $valorTotal * ($desconto / 100)
             : $desconto;

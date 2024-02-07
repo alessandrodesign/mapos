@@ -1,6 +1,6 @@
 <div class="row-fluid">
-    <div id="footer" class="span12"> <a class="pecolor" href="https://github.com/RamonSilva20/mapos" target="_blank">
-            <?= date('Y'); ?> &copy; Ramon Silva - Map-OS - Versão:
+    <div id="footer" class="span12"> <a class="pecolor" href="https://wa.me/5591989932926?text=<?=urlencode("Oi! Gostaria de falar sobre o mapos")?>" target="_blank">
+            <?= date('Y'); ?> &copy; NORTE&lt;dev/&gt; - Versão:
       <?= $this->config->item('app_version'); ?></a></div>
 </div>
 <!--end-Footer-part-->

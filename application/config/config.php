@@ -9,7 +9,7 @@ $config['app_version'] = '4.42.0';
 /**
  * Nome do sistema
  */
-$config['app_name'] = 'Map-OS';
+$config['app_name'] = 'NORTEdev';
 
 /**
  * Descrição do sistema
@@ -19,7 +19,7 @@ $config['app_subname'] = 'Sistema de Controle de Ordens de Serviço';
 /**
  * Definição da hora local.
  */
-date_default_timezone_set('America/Sao_Paulo');
+date_default_timezone_set('America/Belem');
 
 /*
 |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ date_default_timezone_set('America/Sao_Paulo');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'enter_baseurl';
+$config['base_url'] = 'http://localhost:84';
 
 /*
 |--------------------------------------------------------------------------
@@ -55,7 +55,7 @@ $config['base_url'] = 'enter_baseurl';
 | variable so that it is blank.
 |
 */
-$config['index_page'] = 'index.php';
+$config['index_page'] = '';
 
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +72,7 @@ $config['index_page'] = 'index.php';
 |
 | WARNING: If you set this to 'PATH_INFO', URIs will always be URL-decoded!
 */
-$config['uri_protocol']     = 'REQUEST_URI';
+$config['uri_protocol'] = 'REQUEST_URI';
 
 /*
 |--------------------------------------------------------------------------
@@ -421,11 +421,11 @@ $config['sess_regenerate_destroy'] = false;
 |       'cookie_httponly') will also affect sessions.
 |
 */
-$config['cookie_prefix']	= '';
-$config['cookie_domain']	= '';
-$config['cookie_path']		= '/';
-$config['cookie_secure']	= false;
-$config['cookie_httponly'] 	= false;
+$config['cookie_prefix'] = '';
+$config['cookie_domain'] = '';
+$config['cookie_path'] = '/';
+$config['cookie_secure'] = false;
+$config['cookie_httponly'] = false;
 
 /*
 |--------------------------------------------------------------------------

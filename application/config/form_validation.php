@@ -429,6 +429,18 @@ $config = [
             'rules' => 'trim|required|numeric',
         ],
     ],
+    'adicionar_servico_os_by_id' => [
+        [
+            'field' => 'idServico',
+            'label' => 'idServico',
+            'rules' => 'trim|required|numeric',
+        ],
+        [
+            'field' => 'idOsServico',
+            'label' => 'idOsServico',
+            'rules' => 'trim|required|numeric',
+        ],
+    ],
     'cobrancas' => [
         [
             'field' => 'id',

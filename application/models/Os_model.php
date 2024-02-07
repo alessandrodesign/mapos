@@ -130,7 +130,7 @@ class Os_model extends CI_Model
 
     public function getServicos($id = null)
     {
-        $this->db->select('servicos_os.*, servicos.nome, servicos.preco as precoVenda');
+        $this->db->select('servicos_os.*, servicos.codigo, servicos.nome, servicos.preco as precoVenda');
         $this->db->from('servicos_os');
         $this->db->join('servicos', 'servicos.idServicos = servicos_os.servicos_id');
         $this->db->where('os_id', $id);
@@ -260,10 +260,11 @@ class Os_model extends CI_Model
         $this->db->select('*');
         $this->db->limit(5);
         $this->db->like('nome', $q);
+        $this->db->or_like('codigo', $q);
         $query = $this->db->get('servicos');
         if ($query->num_rows() > 0) {
             foreach ($query->result_array() as $row) {
-                $row_set[] = ['label' => $row['nome'] . ' | Preço: R$ ' . $row['preco'], 'id' => $row['idServicos'], 'preco' => $row['preco']];
+                $row_set[] = ['label' => (empty($row['codigo']) ? '' : $row['codigo'] . ' | ') . $row['nome'] . ' | Preço: R$ ' . $row['preco'], 'id' => $row['idServicos'], 'preco' => $row['preco']];
             }
             echo json_encode($row_set);
         }
